@@ -1,6 +1,7 @@
 import psycopg2
 from dotenv import load_dotenv
 import os
+from utils import hash_password
 
 load_dotenv()
 
@@ -11,7 +12,7 @@ cursor = connection.cursor()
 # CRUD operations for todos 
 def getAllTodos(user_id):
     sql_context = 'SELECT row_to_json(t) FROM (SELECT * FROM public.todos WHERE user_id = %s) t;'
-    cursor.execute(sql_context, user_id)
+    cursor.execute(sql_context, (user_id,))
     # Fetch all rows from database
     data = tuple(row[0] for row in cursor.fetchall())
     return data
@@ -23,7 +24,7 @@ def createTodo(user_id, title, description, estado, data):
     return {'message': 'Todo created successfully'}
 
 def getTodo(id):
-    cursor.execute('SELECT row_to_json(t) FROM (SELECT * FROM public.todos WHERE id = %s) t;', id)
+    cursor.execute('SELECT row_to_json(t) FROM (SELECT * FROM public.todos WHERE id = %s) t;', (id,))
     data = cursor.fetchone()
     return data 
 
@@ -57,7 +58,7 @@ def createUser(data):
     name = data.get('nome')
     lastName = data.get('ultimo_nome')
     email = data.get('email')
-    password = data.get('password')
+    password = hash_password(data.get('password'))
     
     cursor.execute('INSERT INTO public.users \
             (username, nome, ultimo_nome, email, password) \
@@ -82,3 +83,8 @@ def deleteUser(id):
     cursor.execute('DELETE FROM public.users WHERE id = %s;', (id,))
     connection.commit()
     return {'message': 'User deleted successfully'}
+
+def getPassword(email):
+    cursor.execute('SELECT password FROM public.users WHERE email = %s;', (email,))
+    data = cursor.fetchone()
+    return data
