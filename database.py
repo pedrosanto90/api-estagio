@@ -85,6 +85,9 @@ def deleteUser(id):
     return {'message': 'User deleted successfully'}
 
 def getPassword(email):
-    cursor.execute('SELECT password FROM public.users WHERE email = %s;', (email,))
-    data = cursor.fetchone()
+    # cursor.execute('SELECT password, id, email FROM public.users WHERE email = %s;', (email,))
+    # data = cursor.fetchone()
+
+    cursor.execute('SELECT row_to_json(u) FROM (SELECT password, id, email, nome, ultimo_nome FROM public.users WHERE email = %s) u;', (email,))
+    data = tuple(row[0] for row in cursor.fetchall())
     return data

@@ -56,7 +56,6 @@ def users(id=None):
     elif request.method == 'GET':
         return jsonify(getAllUsers())
 
-
     elif request.method == 'PUT' and id:
         data = request.get_json()
         return jsonify(updateUser(id, data))
@@ -74,14 +73,17 @@ def userLogin():
     if not hashedPassword:
         return jsonify({'message': f'User {email} not found'})
 
-    if isinstance(hashedPassword, str):  
-        hashedPassword = hashedPassword.encode('utf-8')  
-
-    if not check_password(password, hashedPassword):
+    if not check_password(password, hashedPassword[0]['password']):
         return jsonify({'message': 'Invalid email or password'})
+
     access_token = create_access_token(identity="user")
     return jsonify({'message': f'User {email} login successfully',
-                    'access_token': access_token})
+                    'access_token': access_token, 
+                    'user_id': hashedPassword[0]['id'],
+                    'userEmail': hashedPassword[0]['email'],
+                    'name': hashedPassword[0]["nome"],
+                    'last_name': hashedPassword[0]['ultimo_nome']
+                    })
 
 if __name__ == '__main__':
     app.run(port=5000, host='0.0.0.0', debug=True)
