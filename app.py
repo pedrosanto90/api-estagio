@@ -41,6 +41,10 @@ def todos(id=None):
     elif request.method == 'DELETE' and id:
          return deleteTodo(id)
 
+@app.route('/api/users/create', methods=['POST'])
+def create_user():
+    data = request.get_json()
+    return jsonify(createUser(data))
 
 @app.route('/api/users/', methods=['GET', 'POST'])
 @app.route('/api/users/<id>', methods=['GET', 'PUT', 'DELETE'])
@@ -52,9 +56,6 @@ def users(id=None):
     elif request.method == 'GET':
         return jsonify(getAllUsers())
 
-    elif request.method == 'POST':
-        data = request.get_json()
-        return jsonify(createUser(data))
 
     elif request.method == 'PUT' and id:
         data = request.get_json()
